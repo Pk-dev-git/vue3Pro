@@ -10,14 +10,28 @@
     </div>
   </nav>
   <router-view />
+  <toast
+    :todoMessage="message"
+    :status="status"
+  />
 </template>
 
 <script>
+import toast from '@/components/toast.vue'
+import { ref } from 'vue'
 
 export default {
-  
+  components: {
+    toast
+  },
   setup() {
-
+    const message = ref('success')
+    const status = ref('danger')
+    
+    return {
+      message,
+      status
+    }
   }
 }
 </script>

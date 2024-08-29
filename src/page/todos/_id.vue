@@ -1,26 +1,33 @@
 <template>
-    <h1>To-do Detail</h1> 
-    <div v-if="loading">loading ....</div> 
-    <form v-else>
-        <div class="form-group">
-            <label>Subject</label>
-            <input 
-                type="text"
-                class="form-control"
-                v-model="todo.subject"
-            >
-        </div>
-        <button 
-            class="btn btn-primary"
-            :disabled="!todoUpdate"
-            @click="onSave()"
-        >Save</button>
-    </form>
+    <div class="container">
+        <h1>To-do Detail</h1> 
+        <div v-if="loading">loading ....</div> 
+        <form v-else>
+            <div class="form-group">
+                <label>Subject</label>
+                <input 
+                    type="text"
+                    class="form-control"
+                    v-model="todo.subject"
+                >
+            </div>
+            <button 
+                class="btn btn-primary mt-2 me-2"
+                :disabled="!todoUpdate"
+                @click="onSave()"
+            >Save</button>
+            <button 
+                class="btn btn-danger mt-2"
+                @click="moveTodoList()"
+            >cancel</button>
+        </form>
+    </div>
+    
 
 </template>
 
 <script>
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { ref, computed } from 'vue' 
 import _ from 'lodash'
@@ -28,6 +35,7 @@ import _ from 'lodash'
 export default {
     setup() {
         const route = useRoute()
+        const router = useRouter()
         const todo = ref()
         const originalTodo = ref() 
         
@@ -48,6 +56,12 @@ export default {
             // todo.value = res.data
             // loading.value = false
         }
+
+        const moveTodoList = () => {
+            router.push({
+                name:'Todos'
+            })
+        }
         
         const todoUpdate = computed(() => {
             return !_.isEqual(todo.value, originalTodo.value)
@@ -57,7 +71,8 @@ export default {
             todo,
             loading,
             onSave,
-            todoUpdate
+            todoUpdate,
+            moveTodoList
         }
 
     },
