@@ -21,20 +21,29 @@
       @c-toggleTodo="toggleTodo"
     />
   </div>
+  <toast
+    v-if="showToast"
+    :todoMessage="message"
+    :status="status"
+  />
 </template>
 
 <script>
 import { ref, computed, onBeforeMount, watch } from 'vue'
 import todoForm from '@/components/todoForm.vue'
 import todoList from '@/components/todoList.vue'
-import axios from 'axios'
+import axios from '@/axios'
+import toast from '@/components/toast.vue'
+import { useStore } from 'vuex'
 
 export default {
   components : {
     todoForm,
-    todoList
+    todoList,
+    toast
   },
   setup() {
+    const store = useStore()
 
     const tempData = ref(1)
 
@@ -42,6 +51,26 @@ export default {
     
     const todos = ref([
     ])
+
+    //toast
+    // const showToast = computed(() => store.state.showToast)
+    // const message = computed(() => store.state.message)
+    // const status = computed(() => store.state.status)
+    const showToast = computed(() =>store.state.showToast)
+    const message = computed(() => store.state.message)
+    const status = computed(() => store.state.status)
+  
+
+    // const tiggerToast = (msg, type='success') => {
+    //   message.value = msg
+    //   status.value = type
+    //   showToast.value = true
+    //   setTimeout(() => {
+    //     message.value = ''
+    //     status.value = ''
+    //     showToast.value = false
+    //   }, 3000)
+    // }
 
     //reactive , props, computed 감시
     // watchEffect(() => {
@@ -63,7 +92,7 @@ export default {
    
     const getTodos = async () => {
       try{
-        const res = await axios.get("http://localhost:3000/todos") 
+        const res = await axios.get("todos") 
         todos.value = res.data
       } catch (err) {
         console.log("something error")
@@ -73,13 +102,14 @@ export default {
     const addTodo = async (data) => {
       //데이터베이스 등록
       try {
-        const res = await axios.post("http://localhost:3000/todos", {
+        const res = await axios.post("todos", {
           subject : data.subject,
           completed : data.completed
         })
         todos.value.push(res.data)
+        store.dispatch("tiggerToast", "success", "success")
       }catch(err){
-        console.log(err)
+        store.dispatch("tiggerToast", "fail", "danger")
       } 
     }
 
@@ -91,7 +121,7 @@ export default {
     const onDelete = async (index) => {
       const id = todos.value[index].id
       try{
-        await axios.delete("http://localhost:3000/todos/" + id)
+        await axios.delete("todos/" + id)
         todos.value.splice(index, 1) 
       }catch (err){
         console.log("something error")
@@ -104,7 +134,7 @@ export default {
       const id = todos.value[index].id
 
       try {
-        await axios.patch("http://localhost:3000/todos/" + id, {
+        await axios.patch("todos/" + id, {
           completed : !todos.value[index].completed
         })
         
@@ -137,7 +167,10 @@ export default {
       return tempData.value *2
     })
 
-    return { 
+    return {
+      showToast,
+      status,
+      message,
       tempData,     
       todos,
       todoStyle,
