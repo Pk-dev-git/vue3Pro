@@ -4,13 +4,16 @@
       :key="todo.id"
       class="card mt-2"
     >
-      <div class="card-body p-2 d-flex align-items-center">
+      <div class="card-body p-2 d-flex align-items-center"
+        @click.stop="moveTodoDetail(todo.id)"
+      >
         <div class="form-check flex-grow-1">
           <input 
             class="form-check-input"
             type="checkbox"
-            :value="todo.completed"
+            :checked="todo.completed"
             @change="toggleTodo(index)"
+            @click.stop
           >
           <label
             class="form-check-label"
@@ -22,7 +25,7 @@
         <div>
           <button 
             class="btn btn-danger btn-sm"
-            @click="cOnDelete(index)"
+            @click.stop="cOnDelete(index)"
           >
             DELETE
           </button>
@@ -32,6 +35,8 @@
 </template>
 
 <script>
+import { useRouter } from 'vue-router'
+
 export default {
     props : {
         todos : {
@@ -41,16 +46,30 @@ export default {
     },
     emits : ["c-delete", "c-toggleTodo"],
     setup(props, { emit }) {
+      const router = useRouter()
+
       const cOnDelete = (index) => {
         emit("c-delete", index)
       }
       const toggleTodo = (index) => {
         emit("c-toggleTodo", index)
       }
+      const moveTodoDetail = (todoId) =>{
+        console.log("moveTodoDetail")
+        router.push(
+          {
+            name : 'Todo',
+            params : {
+              id : todoId
+            } 
+          }
+        )
+      }
 
       return {
         cOnDelete,
-        toggleTodo
+        toggleTodo,
+        moveTodoDetail
       }
     },
 }
